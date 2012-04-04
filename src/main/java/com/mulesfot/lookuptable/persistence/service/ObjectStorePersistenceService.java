@@ -1,6 +1,13 @@
 package com.mulesfot.lookuptable.persistence.service;
 
-public class ObjectStorePersistenceService implements PersistenceService{
+public class ObjectStorePersistenceService implements PersistenceService {
+
+	private String customer;
+	
+
+	public ObjectStorePersistenceService(String customer) {
+		this.customer = customer;
+	}
 
 	public String createRecords(String key, String values) {
 		// TODO Auto-generated method stub

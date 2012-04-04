@@ -20,7 +20,7 @@ import com.mulesoft.lookuptable.rest.exceptions.CustomWebApplicationException;
  * @author damiansima
  *
  */
-@Path("/lookuptables")
+@Path("/customer/{customer}/lookuptables")
 public class LookupTableResource {
 
 	/**
@@ -40,7 +40,7 @@ public class LookupTableResource {
 	@POST
 	@Produces("text/plain")
 	@Path("/{tablename}")
-	public String createData(@PathParam("tablename") String tableName, @QueryParam("keys") String keys,
+	public String createData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys,
 			@QueryParam("fields") String fields) {
 		StringBuilder builder = new StringBuilder();
 
@@ -53,6 +53,7 @@ public class LookupTableResource {
 		builder.append("CREATING... LookUpTable: ").append(tableName);
 		builder.append("|keys: ").append(keys);
 		builder.append("|fields: ").append(fields);
+		builder.append("|customer: ").append(customer);
 		return builder.toString();
 
 	}
@@ -75,16 +76,18 @@ public class LookupTableResource {
 	@GET
 	@Produces("text/plain")
 	@Path("/{tablename}")
-	public String listData(@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
+	public String listData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
 		StringBuilder builder = new StringBuilder();
 
 		if (keys == null) {
 			builder.append("200 - ");
 			builder.append("LISTING... LookUpTable: ").append(tableName);
+			builder.append("|customer: ").append(customer);
 		} else {
 			builder.append("200 - ");
 			builder.append("LISTING... LookUpTable: ").append(tableName);
 			builder.append("|keys: ").append(keys);
+			builder.append("|customer: ").append(customer);
 		}
 
 		return builder.toString();
@@ -106,7 +109,7 @@ public class LookupTableResource {
 	@PUT
 	@Produces("text/plain")
 	@Path("/{tablename}")
-	public String updateData(@PathParam("tablename") String tableName, @QueryParam("keys") String keys,
+	public String updateData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys,
 			@QueryParam("fields") String fields) {
 		StringBuilder builder = new StringBuilder();
 
@@ -117,6 +120,7 @@ public class LookupTableResource {
 		builder.append("200 - ");
 		builder.append("UPDATING... LookUpTable: ").append(tableName);
 		builder.append("|keys: ").append(keys);
+		builder.append("|customer: ").append(customer);
 
 		return builder.toString();
 	}
@@ -139,7 +143,7 @@ public class LookupTableResource {
 	@DELETE
 	@Produces("text/plain")
 	@Path("/{tablename}")
-	public String deleteData(@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
+	public String deleteData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
 		StringBuilder builder = new StringBuilder();
 
 		if (keys == null) {
@@ -149,6 +153,7 @@ public class LookupTableResource {
 			builder.append("200 - ");
 			builder.append("DELETING... LookUpTable: ").append(tableName);
 			builder.append("|keys: ").append(keys);
+			builder.append("|customer: ").append(customer);
 		}
 
 		return builder.toString();
