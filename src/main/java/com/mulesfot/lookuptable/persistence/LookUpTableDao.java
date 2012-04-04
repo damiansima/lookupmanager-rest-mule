@@ -2,6 +2,8 @@ package com.mulesfot.lookuptable.persistence;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.google.common.base.Preconditions;
+
 /**
  * This class holds the logic to access the lookup table's data from the data
  * source. Whether it's to Create, Read, Update or Delete it. It also know how
@@ -27,6 +29,8 @@ public class LookUpTableDao {
 	 *         persistence service.
 	 */
 	public boolean createLookupTableRecords(String tableName, String keys, String fields) {
+		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
+
 		String actualKey = this.buildKey(tableName, keys);
 
 		return false;
@@ -40,6 +44,8 @@ public class LookUpTableDao {
 	 * @return
 	 */
 	public String getLookupTableRecords(String tableName) {
+		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
+		
 		return this.getLookupTableRecords(tableName, "");
 	}
 
@@ -54,6 +60,8 @@ public class LookUpTableDao {
 	 * @return
 	 */
 	public String getLookupTableRecords(String tableName, String keys) {
+		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
+		
 		String actualKey = this.buildKey(tableName, keys);
 
 		return null;
@@ -72,6 +80,10 @@ public class LookUpTableDao {
 	 *         persistence service.
 	 */
 	public boolean updateLookupTableRecords(String tableName, String keys, String fields) {
+		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
+		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
+		Preconditions.checkArgument(fields != null, "The field values can not be null.");
+		
 		String actualKey = this.buildKey(tableName, keys);
 
 		return false;
@@ -86,6 +98,8 @@ public class LookUpTableDao {
 	 *         with the persistence service
 	 */
 	public boolean deleteLookupTableRecords(String tableName) {
+		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
+		
 		return this.deleteLookupTableRecords(tableName, "");
 	}
 
@@ -101,6 +115,9 @@ public class LookUpTableDao {
 	 *         persistence service
 	 */
 	public boolean deleteLookupTableRecords(String tableName, String keys) {
+		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
+		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
+		
 		String actualKey = this.buildKey(tableName, keys);
 
 		return false;
