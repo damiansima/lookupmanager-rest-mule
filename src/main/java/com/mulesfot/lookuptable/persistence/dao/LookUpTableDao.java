@@ -1,8 +1,9 @@
-package com.mulesfot.lookuptable.persistence;
+package com.mulesfot.lookuptable.persistence.dao;
 
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Preconditions;
+import com.mulesfot.lookuptable.persistence.service.PersistenceService;
 
 /**
  * This class holds the logic to access the lookup table's data from the data
@@ -15,6 +16,14 @@ import com.google.common.base.Preconditions;
 public class LookUpTableDao {
 	private static final String KEY_PREFIX = "lookup";
 	private static final String SEPARATOR = "_";
+	
+	private PersistenceService persistenceService;
+	
+	
+
+	public LookUpTableDao(PersistenceService persistenceService) {
+		this.persistenceService = persistenceService;
+	}
 
 	/**
 	 * Saves the record related in the given Lookup Table.
