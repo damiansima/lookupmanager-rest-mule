@@ -11,6 +11,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import com.mulesfot.lookuptable.persistence.dao.LookUpTableDao;
 import com.mulesoft.lookuptable.rest.exceptions.CustomWebApplicationException;
 /**
  * This class represent the LookUp Table Resource.
@@ -48,7 +49,9 @@ public class LookupTableResource {
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
 					"Can not create a record whit out providing keys and fields");
 		}
-
+		
+		boolean response = LookUpTableDao.getInstance().createLookupTableRecords(customer, tableName, keys, fields);
+		
 		builder.append("200 - ");
 		builder.append("CREATING... LookUpTable: ").append(tableName);
 		builder.append("|keys: ").append(keys);
@@ -78,12 +81,16 @@ public class LookupTableResource {
 	@Path("/{tablename}")
 	public String listData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
 		StringBuilder builder = new StringBuilder();
-
+		
+		
+		String response = "";
 		if (keys == null) {
+			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName);
 			builder.append("200 - ");
 			builder.append("LISTING... LookUpTable: ").append(tableName);
 			builder.append("|customer: ").append(customer);
 		} else {
+			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName, keys);
 			builder.append("200 - ");
 			builder.append("LISTING... LookUpTable: ").append(tableName);
 			builder.append("|keys: ").append(keys);
@@ -117,6 +124,8 @@ public class LookupTableResource {
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
 					"Can not update a record whit out providing keys and fields");
 		}
+		boolean response = LookUpTableDao.getInstance().updateLookupTableRecords(customer, tableName, keys, fields);
+		
 		builder.append("200 - ");
 		builder.append("UPDATING... LookUpTable: ").append(tableName);
 		builder.append("|keys: ").append(keys);
@@ -146,10 +155,13 @@ public class LookupTableResource {
 	public String deleteData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
 		StringBuilder builder = new StringBuilder();
 
+		boolean response;
 		if (keys == null) {
+			response = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName);
 			builder.append("200 - ");
 			builder.append("DELETING... LookUpTable: ").append(tableName);
 		} else {
+			response = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName, keys);
 			builder.append("200 - ");
 			builder.append("DELETING... LookUpTable: ").append(tableName);
 			builder.append("|keys: ").append(keys);

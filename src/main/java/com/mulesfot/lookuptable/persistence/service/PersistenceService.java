@@ -8,7 +8,7 @@ public interface PersistenceService {
 
 	public String updateRecords(String key, String values);
 
-	public String deleteRecords(String key, String values);
+	public String deleteRecords(String key);
 
 
 }

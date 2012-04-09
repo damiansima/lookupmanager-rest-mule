@@ -1,8 +1,12 @@
 package com.mulesfot.lookuptable.persistence.dao;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Preconditions;
+import com.mulesfot.lookuptable.persistence.service.ObjectStorePersistenceService;
 import com.mulesfot.lookuptable.persistence.service.PersistenceService;
 
 /**
@@ -14,15 +18,36 @@ import com.mulesfot.lookuptable.persistence.service.PersistenceService;
  * 
  */
 public class LookUpTableDao {
+
+	private static LookUpTableDao INSTANCE = null;
+	
 	private static final String KEY_PREFIX = "lookup";
 	private static final String SEPARATOR = "_";
-	
-	private PersistenceService persistenceService;
-	
-	
 
-	public LookUpTableDao(PersistenceService persistenceService) {
-		this.persistenceService = persistenceService;
+	private Map<String, PersistenceService> services = new HashMap<String, PersistenceService>();
+	
+	private LookUpTableDao() {
+	}
+	
+	public static synchronized LookUpTableDao getInstance(){
+		if(INSTANCE == null){
+			INSTANCE = new LookUpTableDao();
+		}
+		
+		return INSTANCE;
+	}
+	
+	/**
+	 * Return the service for the defined customer.
+	 * @param customer
+	 * @return
+	 */
+	private PersistenceService getService(String customer){
+		if(this.services.get(customer) == null){
+			this.services.put(customer, new ObjectStorePersistenceService(customer));
+		}
+		
+		return this.services.get(customer);
 	}
 
 	/**
@@ -37,10 +62,11 @@ public class LookUpTableDao {
 	 * @return false if the key already exits, or if there is an issue with the
 	 *         persistence service.
 	 */
-	public boolean createLookupTableRecords(String tableName, String keys, String fields) {
+	public boolean createLookupTableRecords(String customer,String tableName, String keys, String fields) {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 
 		String actualKey = this.buildKey(tableName, keys);
+		this.getService(customer).createRecords(actualKey, fields);
 
 		return false;
 	}
@@ -52,10 +78,10 @@ public class LookUpTableDao {
 	 *          the name of the lookup table
 	 * @return
 	 */
-	public String getLookupTableRecords(String tableName) {
+	public String getLookupTableRecords(String customer,String tableName) {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 		
-		return this.getLookupTableRecords(tableName, "");
+		return this.getLookupTableRecords( customer,tableName, "");
 	}
 
 	/**
@@ -68,10 +94,11 @@ public class LookUpTableDao {
 	 *          the value of the keys
 	 * @return
 	 */
-	public String getLookupTableRecords(String tableName, String keys) {
+	public String getLookupTableRecords(String customer,String tableName, String keys) {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 		
 		String actualKey = this.buildKey(tableName, keys);
+		this.getService(customer).getLookupRecords(actualKey);
 
 		return null;
 	}
@@ -88,12 +115,13 @@ public class LookUpTableDao {
 	 * @return false if the key didn't exits, or if there is an issue with the
 	 *         persistence service.
 	 */
-	public boolean updateLookupTableRecords(String tableName, String keys, String fields) {
+	public boolean updateLookupTableRecords(String customer,String tableName, String keys, String fields) {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
 		Preconditions.checkArgument(fields != null, "The field values can not be null.");
 		
 		String actualKey = this.buildKey(tableName, keys);
+		this.getService(customer).updateRecords(actualKey, fields);
 
 		return false;
 	}
@@ -106,10 +134,10 @@ public class LookUpTableDao {
 	 * @return false if the lookup table didn't exits, or if there is an issue
 	 *         with the persistence service
 	 */
-	public boolean deleteLookupTableRecords(String tableName) {
+	public boolean deleteLookupTableRecords(String customer,String tableName) {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 		
-		return this.deleteLookupTableRecords(tableName, "");
+		return this.deleteLookupTableRecords( customer,tableName, "");
 	}
 
 	/**
@@ -123,11 +151,12 @@ public class LookUpTableDao {
 	 * @return false if the key didn't exits, or if there is an issue with the
 	 *         persistence service
 	 */
-	public boolean deleteLookupTableRecords(String tableName, String keys) {
+	public boolean deleteLookupTableRecords(String customer,String tableName, String keys) {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
 		
 		String actualKey = this.buildKey(tableName, keys);
+		this.getService(customer).deleteRecords(actualKey);
 
 		return false;
 	}
