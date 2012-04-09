@@ -1,14 +1,18 @@
 package com.mulesfot.lookuptable.persistence.service;
 
+import java.util.List;
+
+import com.mulesfot.lookuptable.persistence.dao.Response;
+
 public interface PersistenceService {
 
-	public String createRecords(String key, String values);
+	public Response createRecords(String key, String values);
 
-	public String getLookupRecords(String key);
+	public List<Response> getLookupRecords(String key);
 
-	public String updateRecords(String key, String values);
+	public Response updateRecords(String key, String values);
 
-	public String deleteRecords(String key);
+	public Response deleteRecords(String key);
 
 
 }

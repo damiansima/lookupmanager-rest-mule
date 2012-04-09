@@ -1,5 +1,9 @@
 package com.mulesfot.lookuptable.persistence.service;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import com.mulesfot.lookuptable.persistence.dao.Response;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
@@ -23,35 +27,42 @@ public class ObjectStorePersistenceService implements PersistenceService {
 		this.client = Client.create();
 	}
 
-	public String createRecords(String key, String values) {
+	public Response createRecords(String key, String values) {
 		WebResource webResource = this.client.resource(this.buildBaseUrl());
 
-		String response = webResource.put(String.class);
-
+		String serviceResponse = webResource.put(String.class);
+		Response response = null;
+		
 		return response;
 	}
 
-	public String getLookupRecords(String key) {
+	public List<Response> getLookupRecords(String key) {
+		WebResource webResource = this.client.resource(this.buildBaseUrl());
+		
+
+		String serviceResponse = webResource.get(String.class);
+		Response response = null;
+		
+		List<Response> responses = new ArrayList<Response>();
+		
+		return responses;
+	}
+
+	public Response updateRecords(String key, String values) {
 		WebResource webResource = this.client.resource(this.buildBaseUrl());
 
-		String response = webResource.get(String.class);
-
+		String serviceResponse = webResource.put(String.class);
+		Response response = null;
+		
 		return response;
 	}
 
-	public String updateRecords(String key, String values) {
+	public Response deleteRecords(String key) {
 		WebResource webResource = this.client.resource(this.buildBaseUrl());
 
-		String response = webResource.put(String.class);
-
-		return response;
-	}
-
-	public String deleteRecords(String key) {
-		WebResource webResource = this.client.resource(this.buildBaseUrl());
-
-		String response = webResource.delete(String.class);
-
+		String serviceResponse = webResource.delete(String.class);
+		Response response = null;
+		
 		return response;
 	}
 
