@@ -11,8 +11,10 @@ import org.mule.module.json.transformers.ObjectToJson;
 import org.mule.transport.MuleMessageFactoryUsagePatternsTestCase;
 
 import com.google.common.base.Preconditions;
+import com.google.gson.Gson;
 import com.mulesfot.lookuptable.persistence.service.ObjectStorePersistenceService;
 import com.mulesfot.lookuptable.persistence.service.PersistenceService;
+import com.mulesfot.lookuptable.persistence.service.PersistenceServiceResponse;
 
 /**
  * This class holds the logic to access the lookup table's data from the data
@@ -29,7 +31,7 @@ public class LookUpTableDao {
 	private static final String KEY_PREFIX = "lookup";
 	private static final String SEPARATOR = "_";
 
-	private static final String FIELD_SEPARATOR = "|";
+	public static final String FIELD_SEPARATOR = "|";
 
 	private Map<String, PersistenceService> services = new HashMap<String, PersistenceService>();
 
@@ -59,6 +61,37 @@ public class LookUpTableDao {
 	}
 
 	/**
+	 * Creates the key that will be store. It prefix the key with the custom value
+	 * and with some identifier.
+	 * 
+	 * @param tableName
+	 * @param key
+	 * @return
+	 */
+	private String buildKey(String tableName, String key) {
+		StringBuffer builder = new StringBuffer();
+
+		builder.append(KEY_PREFIX).append(SEPARATOR);
+		builder.append(tableName).append(SEPARATOR);
+
+		if (StringUtils.isNotBlank(key)) {
+			builder.append(key);
+		}
+
+		return builder.toString();
+	}
+
+	/**
+	 * Parse the persisted key to obtain the relevant data useful for the client.
+	 * 
+	 * @param actualKey
+	 * @return
+	 */
+	private String getKey(String actualKey) {
+		return actualKey.split(SEPARATOR)[2];
+	}
+	
+	/**
 	 * Saves the record related in the given Lookup Table.
 	 * 
 	 * @param tableName
@@ -74,7 +107,7 @@ public class LookUpTableDao {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 
 		String actualKey = this.buildKey(tableName, keys);
-		Response serviceResponse = this.getService(customer).createRecords(actualKey, fields);
+		PersistenceServiceResponse serviceResponse = this.getService(customer).createRecords(actualKey, fields);
 
 		if (serviceResponse.isSuccesfull()) {
 			return true;
@@ -110,10 +143,10 @@ public class LookUpTableDao {
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 
 		String actualKey = this.buildKey(tableName, keys);
-		List<Response> responses = this.getService(customer).getLookupRecords(actualKey);
+		List<PersistenceServiceResponse> responses = this.getService(customer).getLookupRecords(actualKey);
 
 		List<List> records = new ArrayList<List>();
-		for (Response response : responses) {
+		for (PersistenceServiceResponse response : responses) {
 			List<String> record = new ArrayList<String>();
 
 			for (String k : this.getKey(response.getKey()).split(FIELD_SEPARATOR)) {
@@ -127,7 +160,7 @@ public class LookUpTableDao {
 			records.add(record);
 		}
 		
-		return null;
+		return new Gson().toJson(records);
 	}
 
 	/**
@@ -148,7 +181,7 @@ public class LookUpTableDao {
 		Preconditions.checkArgument(fields != null, "The field values can not be null.");
 
 		String actualKey = this.buildKey(tableName, keys);
-		Response serviceResponse = this.getService(customer).updateRecords(actualKey, fields);
+		PersistenceServiceResponse serviceResponse = this.getService(customer).updateRecords(actualKey, fields);
 
 		if (serviceResponse.isSuccesfull()) {
 			return true;
@@ -187,7 +220,7 @@ public class LookUpTableDao {
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
 
 		String actualKey = this.buildKey(tableName, keys);
-		Response serviceResponse = this.getService(customer).deleteRecords(actualKey);
+		PersistenceServiceResponse serviceResponse = this.getService(customer).deleteRecords(actualKey);
 
 		if (serviceResponse.isSuccesfull()) {
 			return true;
@@ -196,35 +229,6 @@ public class LookUpTableDao {
 		return false;
 	}
 
-	/**
-	 * Creates the key that will be store. It prefix the key with the custom value
-	 * and with some identifier.
-	 * 
-	 * @param tableName
-	 * @param key
-	 * @return
-	 */
-	private String buildKey(String tableName, String key) {
-		StringBuffer builder = new StringBuffer();
-
-		builder.append(KEY_PREFIX).append(SEPARATOR);
-		builder.append(tableName).append(SEPARATOR);
-
-		if (StringUtils.isNotBlank(key)) {
-			builder.append(key);
-		}
-
-		return builder.toString();
-	}
-
-	/**
-	 * Parse the persisted key to obtain the relevant data useful for the client.
-	 * 
-	 * @param actualKey
-	 * @return
-	 */
-	private String getKey(String actualKey) {
-		return actualKey.split(SEPARATOR)[2];
-	}
+	
 
 }

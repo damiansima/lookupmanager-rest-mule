@@ -53,6 +53,7 @@ public class LookupTableResource {
 		boolean response = LookUpTableDao.getInstance().createLookupTableRecords(customer, tableName, keys, fields);
 		
 		builder.append("200 - ");
+		
 		builder.append("CREATING... LookUpTable: ").append(tableName);
 		builder.append("|keys: ").append(keys);
 		builder.append("|fields: ").append(fields);

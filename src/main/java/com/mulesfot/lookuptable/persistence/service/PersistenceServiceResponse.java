@@ -1,4 +1,4 @@
-package com.mulesfot.lookuptable.persistence.dao;
+package com.mulesfot.lookuptable.persistence.service;
 
 /**
  * Represents a custom response structure from any Persistence Service.
@@ -6,7 +6,7 @@ package com.mulesfot.lookuptable.persistence.dao;
  * @author damiansima
  * 
  */
-public class Response {
+public class PersistenceServiceResponse {
 	private boolean succesfull;
 	
 	private int serviceStatus;
@@ -15,7 +15,7 @@ public class Response {
 	private String key;
 	private String value;
 	
-	public Response(boolean succesfull, int serviceStatus, String serviceMessage, String key, String value) {
+	public PersistenceServiceResponse(boolean succesfull, int serviceStatus, String serviceMessage, String key, String value) {
 		super();
 		this.succesfull = succesfull;
 		this.serviceStatus = serviceStatus;
