@@ -3,14 +3,16 @@ package com.mulesfot.lookuptable.persistence.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mulesfot.lookuptable.persistence.service.response.PersistenceServiceResponse;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- * This class is the REST client of the ObjectStore API.
- * It use Jersey to implements the client.
+ * This class is the REST client of the ObjectStore API. It use Jersey to
+ * implements the client.
+ * 
  * @author damiansima
- *
+ * 
  */
 public class ObjectStorePersistenceService implements PersistenceService {
 
@@ -20,6 +22,10 @@ public class ObjectStorePersistenceService implements PersistenceService {
 	private String trailingUrl = "/objectstore";
 
 	private final Client client;
+
+	private String buildBaseUrl() {
+		return this.host + this.baseUrl + "/" + this.customer + this.trailingUrl;
+	}
 
 	public ObjectStorePersistenceService(String customer) {
 		this.customer = customer;
@@ -31,19 +37,18 @@ public class ObjectStorePersistenceService implements PersistenceService {
 
 		String serviceResponse = webResource.put(String.class);
 		PersistenceServiceResponse response = null;
-		
+
 		return response;
 	}
 
 	public List<PersistenceServiceResponse> getLookupRecords(String key) {
 		WebResource webResource = this.client.resource(this.buildBaseUrl());
-		
 
 		String serviceResponse = webResource.get(String.class);
 		PersistenceServiceResponse response = null;
-		
+
 		List<PersistenceServiceResponse> responses = new ArrayList<PersistenceServiceResponse>();
-		
+
 		return responses;
 	}
 
@@ -52,7 +57,7 @@ public class ObjectStorePersistenceService implements PersistenceService {
 
 		String serviceResponse = webResource.put(String.class);
 		PersistenceServiceResponse response = null;
-		
+
 		return response;
 	}
 
@@ -61,12 +66,8 @@ public class ObjectStorePersistenceService implements PersistenceService {
 
 		String serviceResponse = webResource.delete(String.class);
 		PersistenceServiceResponse response = null;
-		
-		return response;
-	}
 
-	private String buildBaseUrl() {
-		return this.host + this.baseUrl + "/" + this.customer + this.trailingUrl;
+		return response;
 	}
 
 }

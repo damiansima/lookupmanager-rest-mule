@@ -2,6 +2,8 @@ package com.mulesfot.lookuptable.persistence.service;
 
 import java.util.List;
 
+import com.mulesfot.lookuptable.persistence.service.response.PersistenceServiceResponse;
+
 
 public interface PersistenceService {
 

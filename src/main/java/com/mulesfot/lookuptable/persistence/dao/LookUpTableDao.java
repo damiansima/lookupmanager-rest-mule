@@ -11,7 +11,7 @@ import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
 import com.mulesfot.lookuptable.persistence.service.ObjectStorePersistenceService;
 import com.mulesfot.lookuptable.persistence.service.PersistenceService;
-import com.mulesfot.lookuptable.persistence.service.PersistenceServiceResponse;
+import com.mulesfot.lookuptable.persistence.service.response.PersistenceServiceResponse;
 
 /**
  * This class holds the logic to access the lookup table's data from the data
@@ -29,7 +29,7 @@ public class LookUpTableDao {
 	private static final String SEPARATOR = "_";
 
 	public static final String FIELD_SEPARATOR = "|";
-	
+
 	private static final String ESCAPED_FIELD_SEPARATOR = "\\" + FIELD_SEPARATOR;
 
 	private Map<String, PersistenceService> services = new HashMap<String, PersistenceService>();
@@ -37,13 +37,11 @@ public class LookUpTableDao {
 	private LookUpTableDao() {
 	}
 
-	
-
 	/**
 	 * Return the service for the defined customer.
 	 * 
 	 * @param customer
-	 * @return
+	 * @return the default a PersistenceService instance 
 	 */
 	private PersistenceService getService(String customer) {
 		if (this.services.get(customer) == null) {
@@ -83,13 +81,12 @@ public class LookUpTableDao {
 	private String getKey(String actualKey) {
 		return actualKey.split(SEPARATOR)[2];
 	}
-	
-	private void validateCustomerAndTableName(String customer, String tableName){
+
+	private void validateCustomerAndTableName(String customer, String tableName) {
 		Preconditions.checkArgument(StringUtils.isNotBlank(customer), "The customer table can not be null nor empty.");
 		Preconditions.checkArgument(StringUtils.isNotBlank(tableName), "The lookup table name can not be null nor empty.");
 	}
 
-	
 	public static synchronized LookUpTableDao getInstance() {
 		if (INSTANCE == null) {
 			INSTANCE = new LookUpTableDao();
@@ -111,8 +108,8 @@ public class LookUpTableDao {
 	 *         persistence service.
 	 */
 	public boolean createLookupTableRecords(String customer, String tableName, String keys, String fields) {
-		validateCustomerAndTableName(customer,tableName);
-		
+		validateCustomerAndTableName(customer, tableName);
+
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The keys can not be null nor empty.");
 		Preconditions.checkArgument(fields != null, "The field values can not be null.");
 
@@ -131,10 +128,10 @@ public class LookUpTableDao {
 	 * 
 	 * @param tableName
 	 *          the name of the lookup table
-	 * @return
+	 * @return empty JSon String list if no data was found
 	 */
 	public String getLookupTableRecords(String customer, String tableName) {
-		validateCustomerAndTableName(customer,tableName);
+		validateCustomerAndTableName(customer, tableName);
 
 		return this.getLookupTableRecords(customer, tableName, "");
 	}
@@ -147,10 +144,10 @@ public class LookUpTableDao {
 	 *          the name of the lookup table
 	 * @param keys
 	 *          the value of the keys
-	 * @return
+	 * @return empty JSon String list if no data was found
 	 */
 	public String getLookupTableRecords(String customer, String tableName, String keys) {
-		validateCustomerAndTableName(customer,tableName);
+		validateCustomerAndTableName(customer, tableName);
 
 		String actualKey = this.buildKey(tableName, keys);
 		List<PersistenceServiceResponse> responses = this.getService(customer).getLookupRecords(actualKey);
@@ -169,7 +166,7 @@ public class LookUpTableDao {
 
 			records.add(record);
 		}
-		
+
 		return new Gson().toJson(records);
 	}
 
@@ -187,7 +184,7 @@ public class LookUpTableDao {
 	 */
 	public boolean updateLookupTableRecords(String customer, String tableName, String keys, String fields) {
 
-		validateCustomerAndTableName(customer,tableName);
+		validateCustomerAndTableName(customer, tableName);
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
 		Preconditions.checkArgument(fields != null, "The field values can not be null.");
 
@@ -225,8 +222,8 @@ public class LookUpTableDao {
 	 *         persistence service
 	 */
 	public boolean deleteLookupTableRecords(String customer, String tableName, String keys) {
-		validateCustomerAndTableName(customer,tableName);
-		
+		validateCustomerAndTableName(customer, tableName);
+
 		Preconditions.checkNotNull(keys, "The key can not be null.");
 
 		String actualKey = this.buildKey(tableName, keys);
@@ -238,7 +235,5 @@ public class LookUpTableDao {
 
 		return false;
 	}
-
-	
 
 }

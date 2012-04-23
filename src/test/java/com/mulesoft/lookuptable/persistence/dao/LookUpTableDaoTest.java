@@ -17,7 +17,7 @@ import org.junit.Test;
 import com.google.gson.JsonArray;
 import com.mulesfot.lookuptable.persistence.dao.LookUpTableDao;
 import com.mulesfot.lookuptable.persistence.service.PersistenceService;
-import com.mulesfot.lookuptable.persistence.service.PersistenceServiceResponse;
+import com.mulesfot.lookuptable.persistence.service.response.PersistenceServiceResponse;
 import com.sun.jersey.json.impl.provider.entity.JSONArrayProvider;
 
 /**
@@ -29,7 +29,6 @@ import com.sun.jersey.json.impl.provider.entity.JSONArrayProvider;
  */
 public class LookUpTableDaoTest {
 	private static final String CUSTOMER_NAME = "fakecustomer";
-
 	private static final String TABLE_NAME = "faketable";
 	private static final String SIMPLE_KEY = "fakesimplekey";
 	private static final String COMPOSITE_KEY = "fakecompositekey0|key1|key2";

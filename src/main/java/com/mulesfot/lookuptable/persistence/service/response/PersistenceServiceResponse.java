@@ -1,4 +1,6 @@
-package com.mulesfot.lookuptable.persistence.service;
+package com.mulesfot.lookuptable.persistence.service.response;
+
+import com.google.common.base.Preconditions;
 
 /**
  * Represents a custom response structure from any Persistence Service.
@@ -17,6 +19,7 @@ public class PersistenceServiceResponse {
 	
 	public PersistenceServiceResponse(boolean succesfull, int serviceStatus, String serviceMessage, String key, String value) {
 		super();
+		
 		this.succesfull = succesfull;
 		this.serviceStatus = serviceStatus;
 		this.serviceMessage = serviceMessage;

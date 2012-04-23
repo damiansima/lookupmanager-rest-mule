@@ -13,13 +13,16 @@ import javax.ws.rs.core.Response;
 
 import com.mulesfot.lookuptable.persistence.dao.LookUpTableDao;
 import com.mulesoft.lookuptable.rest.exceptions.CustomWebApplicationException;
+import com.mulesoft.lookuptable.rest.response.LookupManagerResponse;
+
 /**
- * This class represent the LookUp Table Resource.
- * This resource expose an interface for CRUD operations over any lookup table provided.
+ * This class represent the LookUp Table Resource. This resource expose an
+ * interface for CRUD operations over any lookup table provided.
  * 
  * It acts as a facade for the actual persistence layer.
+ * 
  * @author damiansima
- *
+ * 
  */
 @Path("/customer/{customer}/lookuptables")
 public class LookupTableResource {
@@ -36,30 +39,37 @@ public class LookupTableResource {
 	 *          the value/s for the key field/s
 	 * @param fields
 	 *          the value/s the regular field/s
-	 * @return
+	 * @return 200 HTTP Status or 500 if something failed
 	 */
 	@POST
-	@Produces("text/plain")
+	@Produces("application/json")
 	@Path("/{tablename}")
-	public String createData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys,
-			@QueryParam("fields") String fields) {
-		StringBuilder builder = new StringBuilder();
+	public String createData(@PathParam("customer") String customer, @PathParam("tablename") String tableName,
+			@QueryParam("keys") String keys, @QueryParam("fields") String fields) {
 
 		if (keys == null || fields == null) {
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
 					"Can not create a record whit out providing keys and fields");
 		}
-		
-		boolean response = LookUpTableDao.getInstance().createLookupTableRecords(customer, tableName, keys, fields);
-		
-		builder.append("200 - ");
-		
-		builder.append("CREATING... LookUpTable: ").append(tableName);
-		builder.append("|keys: ").append(keys);
-		builder.append("|fields: ").append(fields);
-		builder.append("|customer: ").append(customer);
-		return builder.toString();
 
+		boolean sucess = LookUpTableDao.getInstance().createLookupTableRecords(customer, tableName, keys, fields);
+
+		LookupManagerResponse response;
+		if (sucess) {
+			response = new LookupManagerResponse(LookupManagerResponse.HttpStatus.OK, "Data Creation sucessful", "");
+		} else {
+			StringBuilder builder = new StringBuilder();
+			builder.append("LookUpTable: ").append(tableName);
+			builder.append("|keys: ").append(keys);
+			builder.append("|fields: ").append(fields);
+			builder.append("|customer: ").append(customer);
+
+			response = new LookupManagerResponse(LookupManagerResponse.HttpStatus.INTERNAL_SERVER_ERROR,
+					"There has been an error with the data creation", builder.toString());
+			throw new CustomWebApplicationException(response);
+		}
+
+		return response.toJson();
 	}
 
 	/**
@@ -75,30 +85,23 @@ public class LookupTableResource {
 	 *          the lookup table where the data belongs to.
 	 * @param keys
 	 *          the value/s for the key field/s
-	 * @return
+	 * @return 200 HTTP Status or 500 if something failed
 	 */
 	@GET
-	@Produces("text/plain")
+	@Produces("application/json")
 	@Path("/{tablename}")
-	public String listData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
-		StringBuilder builder = new StringBuilder();
-		
-		
+	public String listData(@PathParam("customer") String customer, @PathParam("tablename") String tableName,
+			@QueryParam("keys") String keys) {
+
 		String response = "";
 		if (keys == null) {
 			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName);
-			builder.append("200 - ");
-			builder.append("LISTING... LookUpTable: ").append(tableName);
-			builder.append("|customer: ").append(customer);
 		} else {
 			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName, keys);
-			builder.append("200 - ");
-			builder.append("LISTING... LookUpTable: ").append(tableName);
-			builder.append("|keys: ").append(keys);
-			builder.append("|customer: ").append(customer);
 		}
 
-		return builder.toString();
+		return new LookupManagerResponse(LookupManagerResponse.HttpStatus.OK, "These are the records found", response)
+				.toJson();
 	}
 
 	/**
@@ -112,27 +115,37 @@ public class LookupTableResource {
 	 * @param keys
 	 *          the value/s for the key field/s
 	 * @param fields
-	 * @return
+	 * @return 200 HTTP Status or 500 if something failed
 	 */
 	@PUT
-	@Produces("text/plain")
+	@Produces("application/json")
 	@Path("/{tablename}")
-	public String updateData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys,
-			@QueryParam("fields") String fields) {
-		StringBuilder builder = new StringBuilder();
+	public String updateData(@PathParam("customer") String customer, @PathParam("tablename") String tableName,
+			@QueryParam("keys") String keys, @QueryParam("fields") String fields) {
 
 		if (keys == null || fields == null) {
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
 					"Can not update a record whit out providing keys and fields");
 		}
-		boolean response = LookUpTableDao.getInstance().updateLookupTableRecords(customer, tableName, keys, fields);
-		
-		builder.append("200 - ");
-		builder.append("UPDATING... LookUpTable: ").append(tableName);
-		builder.append("|keys: ").append(keys);
-		builder.append("|customer: ").append(customer);
 
-		return builder.toString();
+		boolean sucess = LookUpTableDao.getInstance().updateLookupTableRecords(customer, tableName, keys, fields);
+
+		LookupManagerResponse response;
+		if (sucess) {
+			response = new LookupManagerResponse(LookupManagerResponse.HttpStatus.OK, "Data Update sucessful", "");
+		} else {
+			StringBuilder builder = new StringBuilder();
+			builder.append("LookUpTable: ").append(tableName);
+			builder.append("|keys: ").append(keys);
+			builder.append("|fields: ").append(fields);
+			builder.append("|customer: ").append(customer);
+
+			response = new LookupManagerResponse(LookupManagerResponse.HttpStatus.INTERNAL_SERVER_ERROR,
+					"There has been an error with the data update", builder.toString());
+			throw new CustomWebApplicationException(response);
+		}
+
+		return response.toJson();
 	}
 
 	/**
@@ -148,29 +161,38 @@ public class LookupTableResource {
 	 *          the lookup table where the data belongs to.
 	 * @param keys
 	 *          the value/s for the key field/s
-	 * @return
+	 * @return 200 HTTP Status or 500 if something failed
 	 */
 	@DELETE
-	@Produces("text/plain")
+	@Produces("application/json")
 	@Path("/{tablename}")
-	public String deleteData(@PathParam("customer") String customer,@PathParam("tablename") String tableName, @QueryParam("keys") String keys) {
+	public String deleteData(@PathParam("customer") String customer, @PathParam("tablename") String tableName,
+			@QueryParam("keys") String keys) {
 		StringBuilder builder = new StringBuilder();
 
-		boolean response;
+		boolean sucess;
 		if (keys == null) {
-			response = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName);
-			builder.append("200 - ");
-			builder.append("DELETING... LookUpTable: ").append(tableName);
+			sucess = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName);
+
+			builder.append("LookUpTable: ").append(tableName);
 		} else {
-			response = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName, keys);
-			builder.append("200 - ");
-			builder.append("DELETING... LookUpTable: ").append(tableName);
+			sucess = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName, keys);
+
+			builder.append("LookUpTable: ").append(tableName);
 			builder.append("|keys: ").append(keys);
 			builder.append("|customer: ").append(customer);
 		}
 
-		return builder.toString();
+		LookupManagerResponse response;
+		if (sucess) {
+			response = new LookupManagerResponse(LookupManagerResponse.HttpStatus.OK, "Data Deletion Sucessful", "");
+		} else {
+			response = new LookupManagerResponse(LookupManagerResponse.HttpStatus.INTERNAL_SERVER_ERROR,
+					"There has been an error with the data deletion", builder.toString());
+			throw new CustomWebApplicationException(response);
+		}
 
+		return response.toJson();
 	}
 
 }
