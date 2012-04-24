@@ -7,13 +7,17 @@ import com.mulesfot.lookuptable.persistence.service.response.PersistenceServiceR
 
 public interface PersistenceService {
 
-	public PersistenceServiceResponse createRecords(String key, String values);
+	public PersistenceServiceResponse createRecords(String tableName, String key, String values);
 
-	public List<PersistenceServiceResponse> getLookupRecords(String key);
+	public PersistenceServiceResponse getRecord(String tableName, String key);
+	
+	public List<PersistenceServiceResponse> getRecords(String tableName);
+	
+	public PersistenceServiceResponse updateRecords(String tableName, String key, String values);
 
-	public PersistenceServiceResponse updateRecords(String key, String values);
-
-	public PersistenceServiceResponse deleteRecords(String key);
+	public PersistenceServiceResponse deleteRecord(String tableName, String key);
+	
+	public PersistenceServiceResponse deleteRecords(String tableName);
 
 
 }

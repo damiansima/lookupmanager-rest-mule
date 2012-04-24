@@ -1,6 +1,7 @@
 package com.mulesoft.lookuptable.persistence.dao;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,17 +9,16 @@ import java.util.Map;
 
 import junit.framework.Assert;
 
-import org.codehaus.jackson.jaxrs.JacksonJsonProvider;
 import org.easymock.EasyMock;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.google.gson.JsonArray;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.mulesfot.lookuptable.persistence.dao.LookUpTableDao;
 import com.mulesfot.lookuptable.persistence.service.PersistenceService;
 import com.mulesfot.lookuptable.persistence.service.response.PersistenceServiceResponse;
-import com.sun.jersey.json.impl.provider.entity.JSONArrayProvider;
 
 /**
  * Validates that {@link LookUpTableDao} returns the correct data in the correct
@@ -73,29 +73,30 @@ public class LookUpTableDaoTest {
 	 */
 	@Test
 	public void getLookupTableRecordsByKeyTest() {
+		ArrayList<String> expectedRecord = new ArrayList<String>();
+		expectedRecord.add(SIMPLE_KEY);
+		expectedRecord.add("field1");
+		expectedRecord.add("field2");
+		expectedRecord.add("fieldn");
 
 		List<PersistenceServiceResponse> responses = new ArrayList<PersistenceServiceResponse>();
-		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + TABLE_NAME + "_" + SIMPLE_KEY, "field1"
+		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + SIMPLE_KEY, "field1"
 				+ LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR + "fieldn"));
 
-		EasyMock.expect(mockPersistenceService.getLookupRecords(EasyMock.anyObject(String.class))).andReturn(responses);
-
+		EasyMock.expect(mockPersistenceService.getRecords(EasyMock.anyObject(String.class))).andReturn(responses);
 		EasyMock.replay(mockPersistenceService);
 
 		String records = LookUpTableDao.getInstance().getLookupTableRecords(CUSTOMER_NAME, TABLE_NAME, SIMPLE_KEY);
-		System.out.println(records);
 
-		// Type type = new TypeToken<ArrayList<ArrayList>>(){}.getType();
-		// ArrayList<ArrayList> inList = new Gson.fromJson(json, type);
-		//
-		// for (Object record : recordList) {
-		// List rl = (List) record;
-		// System.out.println(rl.toString());
-		// }
+		Type type = new TypeToken<ArrayList<ArrayList<String>>>() {
+		}.getType();
+		ArrayList<ArrayList<String>> recordList = new Gson().fromJson(records, type);
 
-		// TODO make this fails to know where to continue THE JSON IS NOT CORRECT
-		// Assert.assertEquals('[["fakesimplekey","field1","field2","fieldn"]]',
-		// records);
+		Assert.assertEquals("The amount or records returned is wrong", 1, recordList.size());
+
+		for (ArrayList<String> record : recordList) {
+			Assert.assertEquals("The record returned is wrong", expectedRecord, record);
+		}
 
 		EasyMock.verify(mockPersistenceService);
 	}
@@ -107,48 +108,93 @@ public class LookUpTableDaoTest {
 	 */
 	@Test
 	public void getLookupTableRecordsByCompositeKeyTest() {
+		ArrayList<String> expectedRecord = new ArrayList<String>();
+		expectedRecord.add("fakecompositekey0");
+		expectedRecord.add("key1");
+		expectedRecord.add("key2");
+		expectedRecord.add("field1");
+		expectedRecord.add("field2");
+		expectedRecord.add("fieldn");
+		
 		List<PersistenceServiceResponse> responses = new ArrayList<PersistenceServiceResponse>();
-		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + TABLE_NAME + "_" + COMPOSITE_KEY, "field1"
+		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + COMPOSITE_KEY, "field1"
 				+ LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR + "fieldn"));
 
-		EasyMock.expect(mockPersistenceService.getLookupRecords(EasyMock.anyObject(String.class))).andReturn(responses);
+		EasyMock.expect(mockPersistenceService.getRecords(EasyMock.anyObject(String.class))).andReturn(responses);
 
 		EasyMock.replay(mockPersistenceService);
 
 		String records = LookUpTableDao.getInstance().getLookupTableRecords(CUSTOMER_NAME, TABLE_NAME, COMPOSITE_KEY);
-		System.out.println(records);
+
+		Type type = new TypeToken<ArrayList<ArrayList<String>>>() {
+		}.getType();
+		ArrayList<ArrayList<String>> recordList = new Gson().fromJson(records, type);
+
+		Assert.assertEquals("The amount or records returned is wrong", 1, recordList.size());
+
+		for (ArrayList<String> record : recordList) {
+			Assert.assertEquals("The record returned is wrong", expectedRecord, record);
+		}
 
 		EasyMock.verify(mockPersistenceService);
 	}
 
 	@Test
 	public void getLookupTableRecords() {
+		ArrayList<String> expectedRecord_1 = new ArrayList<String>();
+		expectedRecord_1.add(SIMPLE_KEY + "1");
+		expectedRecord_1.add("field1");
+		expectedRecord_1.add("field2");
+		expectedRecord_1.add("fieldn");
+		
+		
+		ArrayList<String> expectedRecord_2 = new ArrayList<String>();
+		expectedRecord_2.add(SIMPLE_KEY + "2");
+		expectedRecord_2.add("field1");
+		expectedRecord_2.add("field2");
+		expectedRecord_2.add("fieldn");
+		
+		ArrayList<ArrayList<String>> expectedRecordList = new ArrayList<ArrayList<String>>();
+		expectedRecordList.add(expectedRecord_1);
+		expectedRecordList.add(expectedRecord_2);
+		
+		
 		List<PersistenceServiceResponse> responses = new ArrayList<PersistenceServiceResponse>();
+		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + SIMPLE_KEY + "1", "field1"
+				+ LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR + "fieldn"));
+		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + SIMPLE_KEY + "2", "field1"
+				+ LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR + "fieldn"));
 
-		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + TABLE_NAME + "_" + SIMPLE_KEY + "1",
-				"field1" + LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR + "fieldn"));
-
-		responses.add(new PersistenceServiceResponse(true, 200, "", "lookup_" + TABLE_NAME + "_" + SIMPLE_KEY + "2",
-				"field1" + LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR + "fieldn"));
-
-		EasyMock.expect(mockPersistenceService.getLookupRecords(EasyMock.anyObject(String.class))).andReturn(responses);
+		EasyMock.expect(mockPersistenceService.getRecords(EasyMock.anyObject(String.class))).andReturn(responses);
 
 		EasyMock.replay(mockPersistenceService);
 
 		String records = LookUpTableDao.getInstance().getLookupTableRecords(CUSTOMER_NAME, TABLE_NAME);
-		System.out.println(records);
 
+		Type type = new TypeToken<ArrayList<ArrayList<String>>>() {
+		}.getType();
+		ArrayList<ArrayList<String>> recordList = new Gson().fromJson(records, type);
+
+		Assert.assertEquals("The amount or records returned is wrong", expectedRecordList.size(), recordList.size());
+		Assert.assertEquals("The record list returned is wrong", expectedRecordList, recordList);
+		
+		for (ArrayList<String> record : recordList) {
+			Assert.assertTrue("The Record: "+ record.toString() + " is not present in the expected record list",expectedRecordList.contains(record));
+		}
+		
+		
 		EasyMock.verify(mockPersistenceService);
 	}
 
 	@Test
 	public void createLookupTableRecordsTest() {
-		String fakeActualKey = "lookup_" + TABLE_NAME + "_" + SIMPLE_KEY;
+		String fakeActualKey = "lookup_" + SIMPLE_KEY;
 		String fakeFields = "field1" + LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR
 				+ "fieldn";
 
 		PersistenceServiceResponse fakeResponse = new PersistenceServiceResponse(true, 200, "", "", "");
-		EasyMock.expect(mockPersistenceService.createRecords(fakeActualKey, fakeFields)).andReturn(fakeResponse);
+		EasyMock.expect(mockPersistenceService.createRecords(TABLE_NAME, fakeActualKey, fakeFields))
+				.andReturn(fakeResponse);
 		EasyMock.replay(mockPersistenceService);
 
 		boolean createSuccess = LookUpTableDao.getInstance().createLookupTableRecords(CUSTOMER_NAME, TABLE_NAME,
@@ -181,12 +227,13 @@ public class LookUpTableDaoTest {
 
 	@Test
 	public void updateLookupTableRecordsTest() {
-		String fakeActualKey = "lookup_" + TABLE_NAME + "_" + SIMPLE_KEY;
+		String fakeActualKey = "lookup_" + SIMPLE_KEY;
 		String fakeFields = "field1" + LookUpTableDao.FIELD_SEPARATOR + "field2" + LookUpTableDao.FIELD_SEPARATOR
 				+ "fieldn";
 
 		PersistenceServiceResponse fakeResponse = new PersistenceServiceResponse(true, 200, "", "", "");
-		EasyMock.expect(mockPersistenceService.updateRecords(fakeActualKey, fakeFields)).andReturn(fakeResponse);
+		EasyMock.expect(mockPersistenceService.updateRecords(TABLE_NAME, fakeActualKey, fakeFields))
+				.andReturn(fakeResponse);
 		EasyMock.replay(mockPersistenceService);
 
 		boolean createSuccess = LookUpTableDao.getInstance().updateLookupTableRecords(CUSTOMER_NAME, TABLE_NAME,
@@ -216,13 +263,13 @@ public class LookUpTableDaoTest {
 	public void updateLookupTableRecordsNullFieldsFailTest() {
 		LookUpTableDao.getInstance().updateLookupTableRecords(CUSTOMER_NAME, TABLE_NAME, SIMPLE_KEY, null);
 	}
-	
+
 	@Test
 	public void deleteLookupTableRecordsByKeyTest() {
-		String fakeActualKey = "lookup_" + TABLE_NAME + "_" + SIMPLE_KEY;
+		String fakeActualKey = "lookup_" + SIMPLE_KEY;
 
 		PersistenceServiceResponse fakeResponse = new PersistenceServiceResponse(true, 200, "", "", "");
-		EasyMock.expect(mockPersistenceService.deleteRecords(fakeActualKey)).andReturn(fakeResponse);
+		EasyMock.expect(mockPersistenceService.deleteRecord(TABLE_NAME, fakeActualKey)).andReturn(fakeResponse);
 		EasyMock.replay(mockPersistenceService);
 
 		boolean createSuccess = LookUpTableDao.getInstance()
@@ -232,23 +279,20 @@ public class LookUpTableDaoTest {
 
 		EasyMock.verify(mockPersistenceService);
 	}
-	
+
 	@Test
 	public void deleteLookupTableRecordsTest() {
-		String fakeActualKey = "lookup_" + TABLE_NAME + "_" ;
 
 		PersistenceServiceResponse fakeResponse = new PersistenceServiceResponse(true, 200, "", "", "");
-		EasyMock.expect(mockPersistenceService.deleteRecords(fakeActualKey)).andReturn(fakeResponse);
+		EasyMock.expect(mockPersistenceService.deleteRecords(TABLE_NAME)).andReturn(fakeResponse);
 		EasyMock.replay(mockPersistenceService);
 
-		boolean createSuccess = LookUpTableDao.getInstance()
-				.deleteLookupTableRecords(CUSTOMER_NAME, TABLE_NAME);
+		boolean createSuccess = LookUpTableDao.getInstance().deleteLookupTableRecords(CUSTOMER_NAME, TABLE_NAME);
 
 		Assert.assertTrue("The delete record operation should have been successful.", createSuccess);
 
 		EasyMock.verify(mockPersistenceService);
 	}
-	
 
 	@Test(expected = IllegalArgumentException.class)
 	public void deleteLookupTableRecordsNoCustomerFailTest() {
@@ -264,7 +308,6 @@ public class LookUpTableDaoTest {
 	public void deleteLookupTableRecordsNullKeysFailTest() {
 		LookUpTableDao.getInstance().deleteLookupTableRecords(CUSTOMER_NAME, TABLE_NAME, null);
 	}
-
 
 	@After
 	public void tearDown() {

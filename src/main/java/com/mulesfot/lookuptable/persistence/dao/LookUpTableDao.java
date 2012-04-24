@@ -41,7 +41,7 @@ public class LookUpTableDao {
 	 * Return the service for the defined customer.
 	 * 
 	 * @param customer
-	 * @return the default a PersistenceService instance 
+	 * @return the default a PersistenceService instance
 	 */
 	private PersistenceService getService(String customer) {
 		if (this.services.get(customer) == null) {
@@ -59,11 +59,10 @@ public class LookUpTableDao {
 	 * @param key
 	 * @return
 	 */
-	private String buildKey(String tableName, String key) {
+	private String buildKey(String key) {
 		StringBuffer builder = new StringBuffer();
 
 		builder.append(KEY_PREFIX).append(SEPARATOR);
-		builder.append(tableName).append(SEPARATOR);
 
 		if (StringUtils.isNotBlank(key)) {
 			builder.append(key);
@@ -74,12 +73,14 @@ public class LookUpTableDao {
 
 	/**
 	 * Parse the persisted key to obtain the relevant data useful for the client.
+	 * A key should be compose by KEYPREFIX_ACTUALKEY, so split it by "_" an
+	 * thaking index 1 should do the trick.
 	 * 
 	 * @param actualKey
 	 * @return
 	 */
 	private String getKey(String actualKey) {
-		return actualKey.split(SEPARATOR)[2];
+		return actualKey.split(SEPARATOR)[1];
 	}
 
 	private void validateCustomerAndTableName(String customer, String tableName) {
@@ -113,8 +114,8 @@ public class LookUpTableDao {
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The keys can not be null nor empty.");
 		Preconditions.checkArgument(fields != null, "The field values can not be null.");
 
-		String actualKey = this.buildKey(tableName, keys);
-		PersistenceServiceResponse serviceResponse = this.getService(customer).createRecords(actualKey, fields);
+		String actualKey = this.buildKey( keys);
+		PersistenceServiceResponse serviceResponse = this.getService(customer).createRecords(tableName, actualKey, fields);
 
 		if (serviceResponse.isSuccesfull()) {
 			return true;
@@ -149,8 +150,8 @@ public class LookUpTableDao {
 	public String getLookupTableRecords(String customer, String tableName, String keys) {
 		validateCustomerAndTableName(customer, tableName);
 
-		String actualKey = this.buildKey(tableName, keys);
-		List<PersistenceServiceResponse> responses = this.getService(customer).getLookupRecords(actualKey);
+		String actualKey = this.buildKey(keys);
+		List<PersistenceServiceResponse> responses = this.getService(customer).getRecords(actualKey);
 
 		List<List> records = new ArrayList<List>();
 		for (PersistenceServiceResponse response : responses) {
@@ -188,8 +189,8 @@ public class LookUpTableDao {
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
 		Preconditions.checkArgument(fields != null, "The field values can not be null.");
 
-		String actualKey = this.buildKey(tableName, keys);
-		PersistenceServiceResponse serviceResponse = this.getService(customer).updateRecords(actualKey, fields);
+		String actualKey = this.buildKey( keys);
+		PersistenceServiceResponse serviceResponse = this.getService(customer).updateRecords(tableName, actualKey, fields);
 
 		if (serviceResponse.isSuccesfull()) {
 			return true;
@@ -226,9 +227,14 @@ public class LookUpTableDao {
 
 		Preconditions.checkNotNull(keys, "The key can not be null.");
 
-		String actualKey = this.buildKey(tableName, keys);
-		PersistenceServiceResponse serviceResponse = this.getService(customer).deleteRecords(actualKey);
-
+		PersistenceServiceResponse serviceResponse;
+		if(StringUtils.isEmpty(keys)){
+			serviceResponse = this.getService(customer).deleteRecords(tableName);
+		}else{
+			String actualKey = this.buildKey(keys);
+			serviceResponse = this.getService(customer).deleteRecord(tableName, actualKey);
+		}
+		
 		if (serviceResponse.isSuccesfull()) {
 			return true;
 		}

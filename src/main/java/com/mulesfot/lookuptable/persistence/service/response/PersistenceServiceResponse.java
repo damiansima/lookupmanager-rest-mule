@@ -10,16 +10,21 @@ import com.google.common.base.Preconditions;
  */
 public class PersistenceServiceResponse {
 	private boolean succesfull;
-	
+
 	private int serviceStatus;
 	private String serviceMessage;
 
 	private String key;
 	private String value;
-	
-	public PersistenceServiceResponse(boolean succesfull, int serviceStatus, String serviceMessage, String key, String value) {
+
+	public PersistenceServiceResponse(boolean succesfull, int serviceStatus) {
+		this(succesfull, serviceStatus, "", "", "");
+	}
+
+	public PersistenceServiceResponse(boolean succesfull, int serviceStatus, String serviceMessage, String key,
+			String value) {
 		super();
-		
+
 		this.succesfull = succesfull;
 		this.serviceStatus = serviceStatus;
 		this.serviceMessage = serviceMessage;
@@ -46,10 +51,5 @@ public class PersistenceServiceResponse {
 	public String getValue() {
 		return value;
 	}
-	
-	
-	
-	
-
 
 }
