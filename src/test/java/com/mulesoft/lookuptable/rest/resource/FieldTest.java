@@ -14,6 +14,8 @@ public class FieldTest {
 	private static final String VALUE = "field_value";
 
 	private static final String JSON_FIELD = "{\"name\":\"" + NAME + "\",\"value\":\"" + VALUE + "\"}";
+	private static final String JSON_FIELD_EMPTY_NAME = "{\"name\":\"\",\"value\":\"" + VALUE + "\"}";
+	private static final String JSON_FIELD_EMPTY_VALUE = "{\"name\":\"" + NAME + "\",\"value\":\"\"}";
 
 	@Test
 	public void construcitonTest() {
@@ -53,5 +55,19 @@ public class FieldTest {
 
 		Assert.assertEquals("The name is not the expected", NAME, field.getName());
 		Assert.assertEquals("The value is not the expected", VALUE, field.getValue());
+	}
+	
+	@Test
+	public void createFromJsonEmptyValueTest() {
+		Field field = Field.createFromJson(JSON_FIELD_EMPTY_VALUE);
+		Assert.assertNotNull("The field should not be null", field);
+
+		Assert.assertEquals("The name is not the expected", NAME, field.getName());
+		Assert.assertEquals("The value is not the expected", "", field.getValue());
+	}
+	
+	@Test(expected = IllegalArgumentException.class)
+	public void createFromJsonEmptyNameTest() {
+		Key.createFromJson(JSON_FIELD_EMPTY_NAME);
 	}
 }

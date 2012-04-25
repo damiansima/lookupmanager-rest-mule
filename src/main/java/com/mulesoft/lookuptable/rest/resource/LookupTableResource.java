@@ -36,9 +36,14 @@ public class LookupTableResource {
 
 	private static final Type LIST_OF_FIELD_TYPE = new TypeToken<ArrayList<Field>>() {
 	}.getType();
+	
+	private static final Type LIST_OF_KEY_TYPE = new TypeToken<ArrayList<Key>>() {
+	}.getType();
 
+	
+	
 	/**
-	 * It converts a JSON formated string in a List<Fild>.
+	 * It converts a JSON formated string in a List<Field>.
 	 * 
 	 * @param jsonList
 	 * @return a list of {@link Field}
@@ -53,11 +58,28 @@ public class LookupTableResource {
 				return listOfFields;
 			}
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
-					"The input parmeter can not be an empty list. The correct format is "
+					"The field parmeter can not be an empty list. The correct format is "
 							+ "[{name:field_name,value:field_value},..]");
 		} catch (JsonParseException e) {
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
-					"The input parmeter is not a list of fields. The correct format is "
+					"The field parmeter is not a list of fields. The correct format is "
+							+ "[{name:field_name,value:field_value},..]");
+		}
+	}
+	
+	private List<Key> getListOfKey(String jsonList) throws CustomWebApplicationException {
+		try {
+			List<Key> listOfKeys = new Gson().fromJson(jsonList, LIST_OF_KEY_TYPE);
+
+			if (listOfKeys.size() > 0) {
+				return listOfKeys;
+			}
+			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
+					"The key parmeter can not be an empty list. The correct format is "
+							+ "[{name:field_name,value:field_value},..]");
+		} catch (JsonParseException e) {
+			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
+					"The key parmeter is not a list of fields. The correct format is "
 							+ "[{name:field_name,value:field_value},..]");
 		}
 	}
@@ -87,7 +109,7 @@ public class LookupTableResource {
 					"Can not create a record whit out providing keys and fields");
 		}
 
-		List<Field> keyList = this.getListOfField(keys);
+		List<Key> keyList = this.getListOfKey(keys);
 		List<Field> valueList = this.getListOfField(fields);
 
 		boolean sucess = LookUpTableDao.getInstance().createLookupTableRecords(customer, tableName, keyList, valueList);
@@ -135,7 +157,7 @@ public class LookupTableResource {
 		if (keys == null) {
 			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName);
 		} else {
-			List<Field> keyList = this.getListOfField(keys);
+			List<Key> keyList = this.getListOfKey(keys);
 			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName, keyList);
 		}
 
@@ -167,7 +189,7 @@ public class LookupTableResource {
 					"Can not update a record whit out providing keys and fields");
 		}
 
-		List<Field> keyList = this.getListOfField(keys);
+		List<Key> keyList = this.getListOfKey(keys);
 		List<Field> valueList = this.getListOfField(fields);
 
 		boolean sucess = LookUpTableDao.getInstance().updateLookupTableRecords(customer, tableName, keyList, valueList);
@@ -218,7 +240,7 @@ public class LookupTableResource {
 
 			builder.append("LookUpTable: ").append(tableName);
 		} else {
-			List<Field> keyList = this.getListOfField(keys);
+			List<Key> keyList = this.getListOfKey(keys);
 
 			sucess = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName, keyList);
 

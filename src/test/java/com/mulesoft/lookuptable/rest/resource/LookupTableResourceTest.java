@@ -28,8 +28,8 @@ public class LookupTableResourceTest {
 	private static final String FAKE_CUSTOMER = "fakecustomer";
 	private static final String FAKE_TABLE_NAME = "faketable";
 
-	private static final List<Field> SIMPLE_KEY_LIST = new ArrayList<Field>();
-	private static final List<Field> COMPOSITE_KEY_LIST = new ArrayList<Field>();
+	private static final List<Key> SIMPLE_KEY_LIST = new ArrayList<Key>();
+	private static final List<Key> COMPOSITE_KEY_LIST = new ArrayList<Key>();
 
 	private static final List<Field> SIMPLE_VALUE_LIST = new ArrayList<Field>();
 	private static final List<Field> COMPOSITE_VALUE_LIST = new ArrayList<Field>();
@@ -49,9 +49,9 @@ public class LookupTableResourceTest {
 		servicesField.setAccessible(true);
 		servicesField.set(LookUpTableDao.getInstance(), mockDao);
 
-		SIMPLE_KEY_LIST.add(new Field("key_name_0", "key_value_0"));
-		COMPOSITE_KEY_LIST.add(new Field("key_name_0", "key_value_0"));
-		COMPOSITE_KEY_LIST.add(new Field("key_name_1", "key_value_1"));
+		SIMPLE_KEY_LIST.add(new Key("key_name_0", "key_value_0"));
+		COMPOSITE_KEY_LIST.add(new Key("key_name_0", "key_value_0"));
+		COMPOSITE_KEY_LIST.add(new Key("key_name_1", "key_value_1"));
 
 		SIMPLE_VALUE_LIST.add(new Field("value_name_0", "value_value_0"));
 		COMPOSITE_VALUE_LIST.add(new Field("value_name_0", "value_value_0"));

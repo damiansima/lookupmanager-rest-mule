@@ -14,16 +14,27 @@ import com.google.gson.JsonSyntaxException;
  * 
  */
 public class Field {
-	private String name;
-	private String value;
+	protected String name;
+	protected String value;
 
-	public static Field createFromJson(String jsonField) {
-		return new Gson().fromJson(jsonField, Field.class);
-	}
-
-	public Field(String name, String value) {
+	private static void validateNameAndValue(String name, String value){
 		Preconditions.checkArgument(StringUtils.isNotBlank(name),"The name of the field can not be null nor empty.");
 		Preconditions.checkNotNull(value,"The value of a field can not be null");
+	}
+	
+	public static Field createFromJson(String jsonField) {
+		Field newField = new Gson().fromJson(jsonField, Field.class);
+		validateNameAndValue(newField.getName(), newField.getValue());
+		
+		return newField;
+	}
+
+	protected Field(){
+		super();
+	}
+	
+	public Field(String name, String value) {
+		validateNameAndValue(name, value);
 
 		this.name = name;
 		this.value = value;
