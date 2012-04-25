@@ -48,10 +48,16 @@ public class LookupTableResource {
 	private List<Field> getListOfField(String jsonList) throws CustomWebApplicationException {
 		try {
 			List<Field> listOfFields = new Gson().fromJson(jsonList, LIST_OF_FIELD_TYPE);
-			return listOfFields;
-		} catch (JsonParseException e) { //JsonSyntaxException
+
+			if (listOfFields.size() > 0) {
+				return listOfFields;
+			}
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
-					"The input parmeter if no a list of fields. The correct format is "
+					"The input parmeter can not be an empty list. The correct format is "
+							+ "[{name:field_name,value:field_value},..]");
+		} catch (JsonParseException e) {
+			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
+					"The input parmeter is not a list of fields. The correct format is "
 							+ "[{name:field_name,value:field_value},..]");
 		}
 	}
@@ -160,7 +166,7 @@ public class LookupTableResource {
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
 					"Can not update a record whit out providing keys and fields");
 		}
-		
+
 		List<Field> keyList = this.getListOfField(keys);
 		List<Field> valueList = this.getListOfField(fields);
 
@@ -213,7 +219,7 @@ public class LookupTableResource {
 			builder.append("LookUpTable: ").append(tableName);
 		} else {
 			List<Field> keyList = this.getListOfField(keys);
-			
+
 			sucess = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName, keyList);
 
 			builder.append("LookUpTable: ").append(tableName);

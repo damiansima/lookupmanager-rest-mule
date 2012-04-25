@@ -30,15 +30,15 @@ public class LookupTableResourceTest {
 
 	private static final List<Field> SIMPLE_KEY_LIST = new ArrayList<Field>();
 	private static final List<Field> COMPOSITE_KEY_LIST = new ArrayList<Field>();
-	
+
 	private static final List<Field> SIMPLE_VALUE_LIST = new ArrayList<Field>();
 	private static final List<Field> COMPOSITE_VALUE_LIST = new ArrayList<Field>();
 
 	private static final List<Field> EMPTY_SIMPLE_VALUE_LIST = new ArrayList<Field>();
 	private static final List<Field> EMPTY_COMPOSITE_VALUE_LIST = new ArrayList<Field>();
-	
+
 	private LookUpTableDao mockDao;
-	
+
 	private static final Gson GSON = new Gson();
 
 	@Before
@@ -48,8 +48,7 @@ public class LookupTableResourceTest {
 		java.lang.reflect.Field servicesField = LookUpTableDao.class.getDeclaredField("INSTANCE");
 		servicesField.setAccessible(true);
 		servicesField.set(LookUpTableDao.getInstance(), mockDao);
-		
-		
+
 		SIMPLE_KEY_LIST.add(new Field("key_name_0", "key_value_0"));
 		COMPOSITE_KEY_LIST.add(new Field("key_name_0", "key_value_0"));
 		COMPOSITE_KEY_LIST.add(new Field("key_name_1", "key_value_1"));
@@ -57,20 +56,20 @@ public class LookupTableResourceTest {
 		SIMPLE_VALUE_LIST.add(new Field("value_name_0", "value_value_0"));
 		COMPOSITE_VALUE_LIST.add(new Field("value_name_0", "value_value_0"));
 		COMPOSITE_VALUE_LIST.add(new Field("value_name_1", "value_value_1"));
-		
+
 		EMPTY_SIMPLE_VALUE_LIST.add(new Field("value_name_0", ""));
 		EMPTY_COMPOSITE_VALUE_LIST.add(new Field("value_name_0", ""));
 		EMPTY_COMPOSITE_VALUE_LIST.add(new Field("value_name_1", ""));
 	}
-	
+
 	@After
-	public void tearDown(){
+	public void tearDown() {
 		SIMPLE_KEY_LIST.clear();
 		COMPOSITE_KEY_LIST.clear();
-		
+
 		SIMPLE_VALUE_LIST.clear();
 		COMPOSITE_VALUE_LIST.clear();
-		
+
 		EMPTY_SIMPLE_VALUE_LIST.clear();
 		EMPTY_COMPOSITE_VALUE_LIST.clear();
 	}
@@ -79,13 +78,15 @@ public class LookupTableResourceTest {
 	public void createDataOkResponseTest() {
 		LookupTableResource resource = new LookupTableResource();
 
-		EasyMock.expect(mockDao.createLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST , SIMPLE_VALUE_LIST)).andReturn(true);
+		EasyMock.expect(
+				mockDao.createLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST, SIMPLE_VALUE_LIST))
+				.andReturn(true);
 
 		EasyMock.replay(mockDao);
 
 		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
 		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
-		
+
 		String response = resource.createData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 
 		LookupManagerResponse actualResponse = new Gson().fromJson(response, LookupManagerResponse.class);
@@ -93,18 +94,20 @@ public class LookupTableResourceTest {
 
 		EasyMock.verify(mockDao);
 	}
-	
+
 	@Test(expected = CustomWebApplicationException.class)
 	public void createDataErrorResponseTest() {
 		LookupTableResource resource = new LookupTableResource();
 
-		EasyMock.expect(mockDao.createLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST, SIMPLE_VALUE_LIST)).andReturn(false);
+		EasyMock.expect(
+				mockDao.createLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST, SIMPLE_VALUE_LIST))
+				.andReturn(false);
 
 		EasyMock.replay(mockDao);
 
 		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
 		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
-		
+
 		String response = resource.createData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 
 		LookupManagerResponse actualResponse = new Gson().fromJson(response, LookupManagerResponse.class);
@@ -112,24 +115,44 @@ public class LookupTableResourceTest {
 
 		EasyMock.verify(mockDao);
 	}
-	
-	@Test(expected=CustomWebApplicationException.class)
+
+	@Test(expected = CustomWebApplicationException.class)
 	public void createDataMalFormedKeyTest() {
 		LookupTableResource resource = new LookupTableResource();
 
 		String jSONSimpleKeyList = GSON.toJson(new Field("key_name_0", "key_value_0"));
 		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
-		
+
 		resource.createData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 	}
-	
-	@Test(expected=CustomWebApplicationException.class)
+
+	@Test(expected = CustomWebApplicationException.class)
+	public void createDataMalFormedKeyEmptyListTest() {
+		LookupTableResource resource = new LookupTableResource();
+
+		String jSONSimpleKeyList = GSON.toJson(new ArrayList<Field>());
+		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
+
+		resource.createData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
+	}
+
+	@Test(expected = CustomWebApplicationException.class)
 	public void createDataMalFormedValueTest() {
 		LookupTableResource resource = new LookupTableResource();
-		
+
 		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
 		String jSONEmptySimpleValueList = GSON.toJson(new Field("value_name_0", "value_value_0"));
-		
+
+		resource.createData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
+	}
+
+	@Test(expected = CustomWebApplicationException.class)
+	public void createDataMalFormedValueEmptyListTest() {
+		LookupTableResource resource = new LookupTableResource();
+
+		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
+		String jSONEmptySimpleValueList = GSON.toJson(new ArrayList<Field>());
+
 		resource.createData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 	}
 
@@ -165,12 +188,20 @@ public class LookupTableResourceTest {
 
 		EasyMock.verify(mockDao);
 	}
-	
-	@Test(expected=CustomWebApplicationException.class)
-	public void listDataMalFormedKeyeTest() {
+
+	@Test(expected = CustomWebApplicationException.class)
+	public void listDataMalFormedKeyTest() {
 		LookupTableResource resource = new LookupTableResource();
 
 		String jSONSimpleKeyList = GSON.toJson(new Field("key_name_0", "key_value_0"));
+		resource.listData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList);
+	}
+
+	@Test(expected = CustomWebApplicationException.class)
+	public void listDataMalFormedKeyEmptyListTest() {
+		LookupTableResource resource = new LookupTableResource();
+
+		String jSONSimpleKeyList = GSON.toJson(new ArrayList<Field>());
 		resource.listData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList);
 	}
 
@@ -178,13 +209,15 @@ public class LookupTableResourceTest {
 	public void updateDataOkResponseTest() {
 		LookupTableResource resource = new LookupTableResource();
 
-		EasyMock.expect(mockDao.updateLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST , SIMPLE_VALUE_LIST)).andReturn(true);
+		EasyMock.expect(
+				mockDao.updateLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST, SIMPLE_VALUE_LIST))
+				.andReturn(true);
 
 		EasyMock.replay(mockDao);
 
 		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
 		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
-		
+
 		String response = resource.updateData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 
 		LookupManagerResponse actualResponse = new Gson().fromJson(response, LookupManagerResponse.class);
@@ -197,35 +230,57 @@ public class LookupTableResourceTest {
 	public void updateDataErrorResponseTest() {
 		LookupTableResource resource = new LookupTableResource();
 
-		EasyMock.expect(mockDao.updateLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST , SIMPLE_VALUE_LIST)).andReturn(false);
+		EasyMock.expect(
+				mockDao.updateLookupTableRecords(FAKE_CUSTOMER, FAKE_TABLE_NAME, SIMPLE_KEY_LIST, SIMPLE_VALUE_LIST))
+				.andReturn(false);
 
 		EasyMock.replay(mockDao);
 
 		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
 		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
-		
+
 		resource.updateData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 
 		EasyMock.verify(mockDao);
 	}
 
-	@Test(expected=CustomWebApplicationException.class)
+	@Test(expected = CustomWebApplicationException.class)
 	public void updateDataMalFormedKeyTest() {
 		LookupTableResource resource = new LookupTableResource();
 
 		String jSONSimpleKeyList = GSON.toJson(new Field("key_name_0", "key_value_0"));
 		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
-		
+
 		resource.updateData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 	}
-	
-	@Test(expected=CustomWebApplicationException.class)
+
+	@Test(expected = CustomWebApplicationException.class)
+	public void updateDataMalFormedKeyEmptyListTest() {
+		LookupTableResource resource = new LookupTableResource();
+
+		String jSONSimpleKeyList = GSON.toJson(new ArrayList<Field>());
+		String jSONEmptySimpleValueList = GSON.toJson(SIMPLE_VALUE_LIST);
+
+		resource.updateData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
+	}
+
+	@Test(expected = CustomWebApplicationException.class)
 	public void updateDataMalFormedValueTest() {
 		LookupTableResource resource = new LookupTableResource();
-		
+
 		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
 		String jSONEmptySimpleValueList = GSON.toJson(new Field("value_name_0", "value_value_0"));
-		
+
+		resource.updateData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
+	}
+
+	@Test(expected = CustomWebApplicationException.class)
+	public void updateDataMalFormedValueEmptyListTest() {
+		LookupTableResource resource = new LookupTableResource();
+
+		String jSONSimpleKeyList = GSON.toJson(SIMPLE_KEY_LIST);
+		String jSONEmptySimpleValueList = GSON.toJson(new ArrayList<Field>());
+
 		resource.updateData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList, jSONEmptySimpleValueList);
 	}
 
@@ -288,15 +343,22 @@ public class LookupTableResourceTest {
 
 		EasyMock.verify(mockDao);
 	}
-	
+
 	@Test(expected = CustomWebApplicationException.class)
 	public void deleteDataMalFormedKeyTest() {
 		LookupTableResource resource = new LookupTableResource();
 
 		String jSONSimpleKeyList = GSON.toJson(new Field("key_name_0", "key_value_0"));
-		
+
 		resource.deleteData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList);
 	}
-	
+
+	@Test(expected = CustomWebApplicationException.class)
+	public void deleteDataMalFormedKeyEmptyListTest() {
+		LookupTableResource resource = new LookupTableResource();
+
+		String jSONSimpleKeyList = GSON.toJson(new ArrayList<Field>());
+		resource.deleteData(FAKE_CUSTOMER, FAKE_TABLE_NAME, jSONSimpleKeyList);
+	}
 
 }
