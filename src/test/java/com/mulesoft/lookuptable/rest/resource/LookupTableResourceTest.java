@@ -6,6 +6,7 @@ import java.util.List;
 import junit.framework.Assert;
 
 import org.easymock.EasyMock;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -47,7 +48,7 @@ public class LookupTableResourceTest {
 		java.lang.reflect.Field servicesField = LookUpTableDao.class.getDeclaredField("INSTANCE");
 		servicesField.setAccessible(true);
 		servicesField.set(LookUpTableDao.getInstance(), mockDao);
-
+		
 		
 		SIMPLE_KEY_LIST.add(new Field("key_name_0", "key_value_0"));
 		COMPOSITE_KEY_LIST.add(new Field("key_name_0", "key_value_0"));
@@ -60,6 +61,18 @@ public class LookupTableResourceTest {
 		EMPTY_SIMPLE_VALUE_LIST.add(new Field("value_name_0", ""));
 		EMPTY_COMPOSITE_VALUE_LIST.add(new Field("value_name_0", ""));
 		EMPTY_COMPOSITE_VALUE_LIST.add(new Field("value_name_1", ""));
+	}
+	
+	@After
+	public void tearDown(){
+		SIMPLE_KEY_LIST.clear();
+		COMPOSITE_KEY_LIST.clear();
+		
+		SIMPLE_VALUE_LIST.clear();
+		COMPOSITE_VALUE_LIST.clear();
+		
+		EMPTY_SIMPLE_VALUE_LIST.clear();
+		EMPTY_COMPOSITE_VALUE_LIST.clear();
 	}
 
 	@Test
