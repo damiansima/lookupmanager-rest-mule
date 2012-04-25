@@ -4,6 +4,7 @@ import org.apache.commons.lang.StringUtils;
 
 import com.google.common.base.Preconditions;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
 
 /**
  * This class represents a filed that would be received as an input or returned
@@ -16,7 +17,7 @@ public class Field {
 	private String name;
 	private String value;
 
-	public static Field createFromJson(String jsonField){
+	public static Field createFromJson(String jsonField) {
 		return new Gson().fromJson(jsonField, Field.class);
 	}
 

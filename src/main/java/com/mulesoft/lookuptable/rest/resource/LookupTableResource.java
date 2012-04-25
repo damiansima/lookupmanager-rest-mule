@@ -1,5 +1,9 @@
 package com.mulesoft.lookuptable.rest.resource;
 
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -8,9 +12,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonSyntaxException;
+import com.google.gson.reflect.TypeToken;
 import com.mulesfot.lookuptable.persistence.dao.LookUpTableDao;
 import com.mulesoft.lookuptable.rest.exceptions.CustomWebApplicationException;
 import com.mulesoft.lookuptable.rest.response.LookupManagerResponse;
@@ -26,6 +33,28 @@ import com.mulesoft.lookuptable.rest.response.LookupManagerResponse;
  */
 @Path("/customer/{customer}/lookuptables")
 public class LookupTableResource {
+
+	private static final Type LIST_OF_FIELD_TYPE = new TypeToken<ArrayList<Field>>() {
+	}.getType();
+
+	/**
+	 * It converts a JSON formated string in a List<Fild>.
+	 * 
+	 * @param jsonList
+	 * @return a list of {@link Field}
+	 * @throws CustomWebApplicationException
+	 *           when the JSON string has an incorrect format
+	 */
+	private List<Field> getListOfField(String jsonList) throws CustomWebApplicationException {
+		try {
+			List<Field> listOfFields = new Gson().fromJson(jsonList, LIST_OF_FIELD_TYPE);
+			return listOfFields;
+		} catch (JsonParseException e) { //JsonSyntaxException
+			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
+					"The input parmeter if no a list of fields. The correct format is "
+							+ "[{name:field_name,value:field_value},..]");
+		}
+	}
 
 	/**
 	 * This method should persist the record send as a parameter.
@@ -52,7 +81,10 @@ public class LookupTableResource {
 					"Can not create a record whit out providing keys and fields");
 		}
 
-		boolean sucess = LookUpTableDao.getInstance().createLookupTableRecords(customer, tableName, keys, fields);
+		List<Field> keyList = this.getListOfField(keys);
+		List<Field> valueList = this.getListOfField(fields);
+
+		boolean sucess = LookUpTableDao.getInstance().createLookupTableRecords(customer, tableName, keyList, valueList);
 
 		LookupManagerResponse response;
 		if (sucess) {
@@ -97,7 +129,8 @@ public class LookupTableResource {
 		if (keys == null) {
 			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName);
 		} else {
-			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName, keys);
+			List<Field> keyList = this.getListOfField(keys);
+			response = LookUpTableDao.getInstance().getLookupTableRecords(customer, tableName, keyList);
 		}
 
 		return new LookupManagerResponse(LookupManagerResponse.HttpStatus.OK, "These are the records found", response)
@@ -127,8 +160,11 @@ public class LookupTableResource {
 			throw new CustomWebApplicationException(Response.Status.BAD_REQUEST,
 					"Can not update a record whit out providing keys and fields");
 		}
+		
+		List<Field> keyList = this.getListOfField(keys);
+		List<Field> valueList = this.getListOfField(fields);
 
-		boolean sucess = LookUpTableDao.getInstance().updateLookupTableRecords(customer, tableName, keys, fields);
+		boolean sucess = LookUpTableDao.getInstance().updateLookupTableRecords(customer, tableName, keyList, valueList);
 
 		LookupManagerResponse response;
 		if (sucess) {
@@ -176,7 +212,9 @@ public class LookupTableResource {
 
 			builder.append("LookUpTable: ").append(tableName);
 		} else {
-			sucess = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName, keys);
+			List<Field> keyList = this.getListOfField(keys);
+			
+			sucess = LookUpTableDao.getInstance().deleteLookupTableRecords(customer, tableName, keyList);
 
 			builder.append("LookUpTable: ").append(tableName);
 			builder.append("|keys: ").append(keys);

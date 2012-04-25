@@ -12,6 +12,7 @@ import com.google.gson.Gson;
 import com.mulesfot.lookuptable.persistence.service.ObjectStorePersistenceService;
 import com.mulesfot.lookuptable.persistence.service.PersistenceService;
 import com.mulesfot.lookuptable.persistence.service.response.PersistenceServiceResponse;
+import com.mulesoft.lookuptable.rest.resource.Field;
 
 /**
  * This class holds the logic to access the lookup table's data from the data
@@ -108,7 +109,7 @@ public class LookUpTableDao {
 	 * @return false if the key already exits, or if there is an issue with the
 	 *         persistence service.
 	 */
-	public boolean createLookupTableRecords(String customer, String tableName, String keys, String fields) {
+	public boolean createLookupTableRecords(String customer, String tableName, List<Field> keys, List<Field> fields) {
 		validateCustomerAndTableName(customer, tableName);
 
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The keys can not be null nor empty.");
@@ -147,7 +148,7 @@ public class LookUpTableDao {
 	 *          the value of the keys
 	 * @return empty JSon String list if no data was found
 	 */
-	public String getLookupTableRecords(String customer, String tableName, String keys) {
+	public String getLookupTableRecords(String customer, String tableName, List<Field> keys) {
 		validateCustomerAndTableName(customer, tableName);
 
 		String actualKey = this.buildKey(keys);
@@ -183,7 +184,7 @@ public class LookUpTableDao {
 	 * @return false if the key didn't exits, or if there is an issue with the
 	 *         persistence service.
 	 */
-	public boolean updateLookupTableRecords(String customer, String tableName, String keys, String fields) {
+	public boolean updateLookupTableRecords(String customer, String tableName, List<Field> keys, List<Field> fields) {
 
 		validateCustomerAndTableName(customer, tableName);
 		Preconditions.checkArgument(StringUtils.isNotBlank(keys), "The key can not be null nor empty.");
@@ -222,7 +223,7 @@ public class LookUpTableDao {
 	 * @return false if the key didn't exits, or if there is an issue with the
 	 *         persistence service
 	 */
-	public boolean deleteLookupTableRecords(String customer, String tableName, String keys) {
+	public boolean deleteLookupTableRecords(String customer, String tableName, List<Field> keys) {
 		validateCustomerAndTableName(customer, tableName);
 
 		Preconditions.checkNotNull(keys, "The key can not be null.");
